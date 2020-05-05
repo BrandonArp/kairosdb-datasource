@@ -1,3 +1,8 @@
+<a href="https://travis-ci.com/ArpNetworking/kairosdb-datasource">
+    <img src="https://travis-ci.com/ArpNetworking/kairosdb-datasource.svg?branch=master"
+         alt="Travis Build">
+</a>
+
 Starting in Grafana 3.x the KairosDB data source is no longer included out of the box.
 
 But it is easy to install this plugin!
