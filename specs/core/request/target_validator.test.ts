@@ -1,6 +1,6 @@
 import forEach from "mocha-each";
+import {FilterAggregator} from "../../../src/beans/aggregators/filter_aggregator";
 import {PercentileAggregator} from "../../../src/beans/aggregators/percentile_aggregator";
-import {RateAggregator} from "../../../src/beans/aggregators/rate_aggregator";
 import {KairosDBTarget} from "../../../src/beans/request/target";
 import {TargetValidator} from "../../../src/core/request/target_validator";
 
@@ -18,7 +18,7 @@ describe("TargetValidator", () => {
   });
   const targetWithNonScalarAgg = KairosDBTarget.fromObject({
     metricName: "nonscalar aggregator target",
-    aggregators: [new RateAggregator()]
+    aggregators: [new FilterAggregator()]
   });
 
   const nullTarget = null;

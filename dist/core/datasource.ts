@@ -54,11 +54,11 @@ export class KairosDBDatasource {
         this.registerTemplatingFunctions();
     }
 
-    public initialize(): Promise<boolean> {
-        return this.metricNamesStore.initialize().then(
+    public initialize(): void {
+        this.metricNamesStore.initialize().then(
             () => this.initialized = true,
             () => this.initializationError = true
-        ).then(() => this.initialized);
+        );
     }
 
     public testDatasource() {

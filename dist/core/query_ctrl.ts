@@ -25,7 +25,7 @@ export class KairosDBQueryCtrl extends QueryCtrl {
     /** @ngInject **/
     constructor($scope, $injector) {
         super($scope, $injector);
-        this.datasource.initialize().then(() => $scope.$apply());
+        this.datasource.initialize();
         $scope.$watch("ctrl.target.query", this.onTargetChange.bind(this), true);
         $scope.$watch("ctrl.target.query.metricName", this.onMetricNameChanged.bind(this));
         if (this.legacyTargetConverter.isApplicable(this.target)) {
@@ -36,7 +36,7 @@ export class KairosDBQueryCtrl extends QueryCtrl {
         } else {
             this.target.query = this.target.query || new KairosDBTarget();
         }
-        this.initializeTags(this.target.query.metricName, this.target.query, $scope);
+        this.initializeTags(this.target.query.metricName, this.target.query);
     }
 
     public getCollapsedText(): string {
@@ -49,12 +49,12 @@ export class KairosDBQueryCtrl extends QueryCtrl {
         }
     }
 
-    private onMetricNameChanged(newMetricName, oldMetricName, $scope) {
+    private onMetricNameChanged(newMetricName, oldMetricName) {
         if (newMetricName === oldMetricName) {
             return;
         }
         const query = this.buildNewTarget(newMetricName);
-        this.initializeTags(newMetricName, query, $scope);
+        this.initializeTags(newMetricName, query);
         this.target.query = query;
     }
 
@@ -73,13 +73,13 @@ export class KairosDBQueryCtrl extends QueryCtrl {
         return target;
     }
 
-    private initializeTags(metricName: string, query: KairosDBTarget, $scope: any) {
+    private initializeTags(metricName: string, query: KairosDBTarget) {
         this.clear();
         if (metricName) {
             this.tags = new MetricTags();
             this.datasource.getMetricTags(metricName)
                 .then(
-                    (tags) => $scope.$apply(() => this.tags.updateTags(tags)),
+                    (tags) => this.tags.updateTags(tags),
                     (error) => this.tagsInitializationError = error.data.message
                 )
                 .then(

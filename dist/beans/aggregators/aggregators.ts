@@ -10,54 +10,66 @@ import {ScaleAggregator} from "./scale_aggregator";
 import {SmaAggregator} from "./sma_aggregator";
 import {TrimAggregator} from "./trim_aggregator";
 
-const RANGE_AGGREGATORS = [
+export const AGGREGATORS = [
     new RangeAggregator("avg"),
-    new RangeAggregator("count"),
     new RangeAggregator("dev"),
+    new RangeAggregator("count"),
     new RangeAggregator("first"),
     new RangeAggregator("gaps"),
     new RangeAggregator("last"),
     new RangeAggregator("least_squares"),
     new RangeAggregator("max"),
-    // merge intentionally excluded; mportal adds it automatically now
     new RangeAggregator("min"),
+    new RangeAggregator("merge"),
     new RangeAggregator("movingWindow"),
-    new RangeAggregator("sum"),
-];
-
-export const AGGREGATORS = RANGE_AGGREGATORS.concat([
-    new Aggregator("diff"),
-    new Aggregator("percent_remaining"),
-    new ApdexAggregator(),
-    new DivideAggregator(),
-    new FilterAggregator(),
     new PercentileAggregator(),
+    new ApdexAggregator(),
+    new SmaAggregator(),
+    new RangeAggregator("sum"),
+    new Aggregator("diff"),
+    new DivideAggregator(),
     new RateAggregator(),
     new SamplerAggregator(),
     new ScaleAggregator(),
-    new SmaAggregator(),
     new TrimAggregator(),
-]).sort( (a, b) => a.name.localeCompare(b.name));
+    new FilterAggregator(),
+    new Aggregator("percent_remaining")
+].sort( (a, b) => a.name.localeCompare(b.name));
 
-// Loosely generated from:
-// tslint:disable-next-line
-// grep -H -q "doubleDataPointFactory" <path-to-kairosdb-extensions>/kairosdb-extensions/src/main/java/io/inscopemetrics/kairosdb/aggregators
-// Many of the java class names are synonyms of the names here.
+const RANGE_AGGREGATORS = ["avg", "dev", "count", "first", "gaps",
+    "last", "least_squares", "max", "min", "gaps", "merge", "sum", "movingWindow"];
+
+/* Loosely generated from running `grep -rl "oubleDataPointFactory"`
+ pointed at the directories for kairosdb core and kairosdb-extensions
+ kairosdb-extensions/src/main/java/io/inscopemetrics/kairosdb/aggregators
+ and
+ kairosdb/src/main/java/org/kairosdb/core/aggregator
+ respectively.
+ Many of the java class names are synonyms and not exact matches of the names here.
+ */
 export const SCALAR_AGGREGATOR_NAMES = [
-  "apdex",
-  "avg",
-  "count",
-  "dev",
-  "max",
-  "min",
-  "percentile",
-  "percent_remaining",
-  "sum",
+    "apdex",
+    "avg",
+    "count",
+    "dev",
+    "diff",
+    "div",
+    "first",
+    "last",
+    "least_squares",
+    "max",
+    "min",
+    "percent_remaining",
+    "percentile",
+    "rate",
+    "sampler",
+    "scale",
+    "sma",
+    "sum",
 ];
-export const RANGE_AGGREGATOR_NAMES = RANGE_AGGREGATORS.map((agg) => agg.name);
 
 export function fromObject(object: Aggregator): Aggregator {
-  if (RANGE_AGGREGATOR_NAMES.indexOf(object.name) >= 0) {
+  if (RANGE_AGGREGATORS.indexOf(object.name) >= 0) {
       return RangeAggregator.fromObject(object);
   } else if (object.name === PercentileAggregator.NAME) {
       return PercentileAggregator.fromObject(object);
