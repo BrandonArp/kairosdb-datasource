@@ -18,7 +18,7 @@ export declare class KairosDBDatasource {
     private templatingUtils;
     private snapToIntervals?;
     constructor(instanceSettings: any, $q: any, backendSrv: any, templateSrv: any);
-    initialize(): void;
+    initialize(): Promise<boolean>;
     testDatasource(): any;
     query(options: any): any;
     getMetricTags(metricNameTemplate: any, filters?: {}): any;

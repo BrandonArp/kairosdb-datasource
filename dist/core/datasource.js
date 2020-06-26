@@ -71,7 +71,7 @@ System.register(["lodash", "../beans/function", "../beans/request/legacy_target_
                 }
                 KairosDBDatasource.prototype.initialize = function () {
                     var _this = this;
-                    this.metricNamesStore.initialize().then(function () { return _this.initialized = true; }, function () { return _this.initializationError = true; });
+                    return this.metricNamesStore.initialize().then(function () { return _this.initialized = true; }, function () { return _this.initializationError = true; }).then(function () { return _this.initialized; });
                 };
                 KairosDBDatasource.prototype.testDatasource = function () {
                     return this.executeRequest(this.getRequestBuilder().buildHealthStatusQuery())
