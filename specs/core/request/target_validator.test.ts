@@ -10,7 +10,7 @@ interface SplitTargets {
 }
 describe("TargetValidator", () => {
 
-  const targetWithOnlyName = KairosDBTarget.fromObject( {metricName: "named target"});
+  const targetWithOnlyName = KairosDBTarget.fromObject({metricName: "named target"});
   const targetWithScalarOverride = KairosDBTarget.fromObject({metricName: "name and scalar override target", overrideScalar: true});
   const targetWithScalarAgg = KairosDBTarget.fromObject({
     metricName: "scalar aggregator target",
