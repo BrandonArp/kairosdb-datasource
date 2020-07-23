@@ -18,7 +18,7 @@ export class KairosDBQueryCtrl extends QueryCtrl {
 
     public aggregators: Aggregator[] = AGGREGATORS;
     public tagsInitializationError: string = undefined;
-    private targetValidator: TargetValidator = new TargetValidator();
+    private targetValidator: TargetValidator = new TargetValidator(this.datasource.enforceScalarSetting);
     private tags: MetricTags;
     private legacyTargetConverter: LegacyTargetConverter = new LegacyTargetConverter();
 
@@ -68,6 +68,7 @@ export class KairosDBQueryCtrl extends QueryCtrl {
           target.tags = oldQuery.tags;
           target.groupBy = oldQuery.groupBy;
           target.timeRange = oldQuery.timeRange;
+          target.overrideScalar = oldQuery.overrideScalar;
         }
         return target;
     }

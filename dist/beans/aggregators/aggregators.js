@@ -1,6 +1,6 @@
 System.register(["./aggregator", "./apdex_aggregator", "./divide_aggregator", "./filter_aggregator", "./percentile_aggregator", "./range_aggregator", "./rate_aggregator", "./sampler_aggregator", "./scale_aggregator", "./sma_aggregator", "./trim_aggregator"], function (exports_1, context_1) {
     "use strict";
-    var aggregator_1, apdex_aggregator_1, divide_aggregator_1, filter_aggregator_1, percentile_aggregator_1, range_aggregator_1, rate_aggregator_1, sampler_aggregator_1, scale_aggregator_1, sma_aggregator_1, trim_aggregator_1, AGGREGATORS, RANGE_AGGREGATORS;
+    var aggregator_1, apdex_aggregator_1, divide_aggregator_1, filter_aggregator_1, percentile_aggregator_1, range_aggregator_1, rate_aggregator_1, sampler_aggregator_1, scale_aggregator_1, sma_aggregator_1, trim_aggregator_1, AGGREGATORS, RANGE_AGGREGATORS, SCALAR_AGGREGATOR_NAMES;
     var __moduleName = context_1 && context_1.id;
     function fromObject(object) {
         if (RANGE_AGGREGATORS.indexOf(object.name) >= 0) {
@@ -106,6 +106,26 @@ System.register(["./aggregator", "./apdex_aggregator", "./divide_aggregator", ".
             ].sort(function (a, b) { return a.name.localeCompare(b.name); }));
             RANGE_AGGREGATORS = ["avg", "dev", "count", "first", "gaps",
                 "last", "least_squares", "max", "min", "gaps", "merge", "sum", "movingWindow"];
+            exports_1("SCALAR_AGGREGATOR_NAMES", SCALAR_AGGREGATOR_NAMES = [
+                "apdex",
+                "avg",
+                "count",
+                "dev",
+                "diff",
+                "div",
+                "first",
+                "last",
+                "least_squares",
+                "max",
+                "min",
+                "percent_remaining",
+                "percentile",
+                "rate",
+                "sampler",
+                "scale",
+                "sma",
+                "sum",
+            ]);
         }
     };
 });

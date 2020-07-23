@@ -54,7 +54,7 @@ System.register(["app/plugins/sdk", "../beans/aggregators/aggregators", "../bean
                     var _this = _super.call(this, $scope, $injector) || this;
                     _this.aggregators = aggregators_1.AGGREGATORS;
                     _this.tagsInitializationError = undefined;
-                    _this.targetValidator = new target_validator_1.TargetValidator();
+                    _this.targetValidator = new target_validator_1.TargetValidator(_this.datasource.enforceScalarSetting);
                     _this.legacyTargetConverter = new legacy_target_converter_1.LegacyTargetConverter();
                     _this.datasource.initialize().then(function () { return $scope.$apply(); });
                     $scope.$watch("ctrl.target.query", _this.onTargetChange.bind(_this), true);
@@ -97,6 +97,7 @@ System.register(["app/plugins/sdk", "../beans/aggregators/aggregators", "../bean
                         target.tags = oldQuery.tags;
                         target.groupBy = oldQuery.groupBy;
                         target.timeRange = oldQuery.timeRange;
+                        target.overrideScalar = oldQuery.overrideScalar;
                     }
                     return target;
                 };

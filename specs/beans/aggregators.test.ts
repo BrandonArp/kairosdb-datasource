@@ -1,6 +1,6 @@
 import _ from "lodash";
 import {Aggregator} from "../../src/beans/aggregators/aggregator";
-import {AGGREGATORS} from "../../src/beans/aggregators/aggregators";
+import {AGGREGATORS, SCALAR_AGGREGATOR_NAMES} from "../../src/beans/aggregators/aggregators";
 import {AlignmentAggregatorParameter} from "../../src/beans/aggregators/parameters/alignment_aggregator_parameter";
 import {RangeAggregator} from "../../src/beans/aggregators/range_aggregator";
 
@@ -21,3 +21,17 @@ function hasAlignmentParam(agg: Aggregator): boolean {
     });
     return !_.isNil(param);
 }
+
+describe("SCALAR_AGGREGATOR_NAMES", () => {
+    it("should be sorted alphabetically", () => {
+        expect(_.sortBy(SCALAR_AGGREGATOR_NAMES)).eql(SCALAR_AGGREGATOR_NAMES);
+    });
+    it("should not include duplicates", () => {
+        expect(_.uniq(SCALAR_AGGREGATOR_NAMES).length).equal(SCALAR_AGGREGATOR_NAMES.length);
+    });
+    it("should only include members of AGGREGATORS", () => {
+        const aggregatorNames = AGGREGATORS.map((a) => a.name);
+        const missing = _.difference(SCALAR_AGGREGATOR_NAMES, aggregatorNames);
+        expect(missing).eql([]);
+    });
+});

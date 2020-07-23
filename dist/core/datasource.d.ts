@@ -3,6 +3,7 @@ export declare class KairosDBDatasource {
     initialized: boolean;
     initializationError: boolean;
     metricNamesStore: MetricNamesStore;
+    enforceScalarSetting?: boolean;
     private type;
     private url;
     private withCredentials;
