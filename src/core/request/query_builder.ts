@@ -54,16 +54,17 @@ export class KairosDBQueryBuilder {
         });
     }
 
-    public buildDatapointsQuery(targets, options) {
+    public buildDatapointsQuery(targets, options, additionalMetricQueries = []) {
         const range = options.range;
         const panelId: string = options.panelId;
         const defaultInterval: string = options.interval;
-        const requests = targets.map((target) =>
+        const queries = targets.map((target) =>
             this.buildMetricQuery(
               target.query instanceof KairosDBTarget ? target.query : KairosDBTarget.fromObject(target.query),
               defaultInterval)
-            ),
-        data = new DatapointsQuery(range.from, range.to, requests);
+            );
+        queries.push(...additionalMetricQueries);
+        const data = new DatapointsQuery(range.from, range.to, queries);
         return this.buildRequest({
             data,
             method: "POST",

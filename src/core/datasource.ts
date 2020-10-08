@@ -2,6 +2,7 @@ import _ from "lodash";
 import {UnitValue} from "../beans/aggregators/utils";
 import {TemplatingFunction} from "../beans/function";
 import {LegacyTargetConverter} from "../beans/request/legacy_target_converter";
+import {MetricQuery} from "../beans/request/metric_query";
 import {KairosDBTarget} from "../beans/request/target";
 import {TemplatingFunctionsCtrl} from "../controllers/templating_functions_ctrl";
 import {PromiseUtils} from "../utils/promise_utils";
@@ -68,7 +69,11 @@ export class KairosDBDatasource {
 
     public query(options) {
         const enabledTargets = _.cloneDeep(options.targets.filter((target) => !target.hide));
-        const convertedTargets = _.map(enabledTargets, (target) => {
+
+        // Remove all raw queries to treat them separately
+        const [targetsWithRaw, targetsWithStructured] = _.partition(enabledTargets, (target) => target.editorMode);
+
+        const convertedTargets = _.map(targetsWithStructured, (target) => {
             if (this.legacyTargetConverter.isApplicable(target)) {
               return {query: this.legacyTargetConverter.convert(target)};
             } else if (!(target.query instanceof KairosDBTarget)) {
@@ -77,27 +82,43 @@ export class KairosDBDatasource {
               return target;
             }
         });
+
+        const templatingUtils = new TemplatingUtils(this.templateSrv, options.scopedVars);
+        let unpackedTargets = [];
+        let aliases = [];
+
         const panelTargetsFullyConfigured = this.targetValidator.areValidTargets(convertedTargets);
-        if (!panelTargetsFullyConfigured.valid) {
+        if (!panelTargetsFullyConfigured.valid && targetsWithRaw.size === 0) {
           // in order for valid to be false, this must be a ValidatorFailureResponse
           // but type interence doesn't catch this so we must cast
           return Promise.reject({
             message: (panelTargetsFullyConfigured as ValidatorFailureResponse).reason
           });
+        } else {
+            aliases = templatingUtils.replaceAll(convertedTargets.map((target) => target.query.alias));
+            unpackedTargets = _.flatten(convertedTargets.map((target) => {
+                return templatingUtils.replace(target.query.metricName)
+                    .map((metricName) => {
+                        const clonedTarget = _.cloneDeep(target);
+                        clonedTarget.query.metricName = metricName;
+                        return clonedTarget;
+                    });
+            }));
+        }
+        const additionalMetricQueries = [];
+        for (const target of targetsWithRaw) {
+            let parsed;
+            try {
+                const rawQuery = this.templateSrv.replace(target.rawQuery, options.scopedVars, TemplatingUtils.customFormatterFn);
+                parsed = MetricQuery.fromObject(JSON.parse(rawQuery));
+            } catch (e) {
+                return Promise.reject({message: "Panel raw query could not be parsed: " + e.message});
+            }
+            additionalMetricQueries.push(parsed);
         }
 
-        const templatingUtils = new TemplatingUtils(this.templateSrv, options.scopedVars);
-        const aliases = templatingUtils.replaceAll(convertedTargets.map((target) => target.query.alias));
-        const unpackedTargets = _.flatten(convertedTargets.map((target) => {
-            return templatingUtils.replace(target.query.metricName)
-                .map((metricName) => {
-                    const clonedTarget = _.cloneDeep(target);
-                    clonedTarget.query.metricName = metricName;
-                    return clonedTarget;
-                });
-        }));
         const requestBuilder = this.getRequestBuilder(options.scopedVars);
-        return this.executeRequest(requestBuilder.buildDatapointsQuery(unpackedTargets, options))
+        return this.executeRequest(requestBuilder.buildDatapointsQuery(unpackedTargets, options, additionalMetricQueries))
             .then((response) => this.responseHandler.convertToDatapoints(response.data, aliases));
     }
 

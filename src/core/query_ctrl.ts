@@ -36,11 +36,16 @@ export class KairosDBQueryCtrl extends QueryCtrl {
         } else {
             this.target.query = this.target.query || new KairosDBTarget();
         }
+        this.target.editorMode = !!this.target.editorMode;
         this.initializeTags(this.target.query.metricName, this.target.query, $scope);
     }
 
     public getCollapsedText(): string {
         return this.target.query.asString();
+    }
+
+    public toggleEditorMode() {
+        this.target.editorMode = !this.target.editorMode;
     }
 
     private onTargetChange(newTarget, oldTarget) {
