@@ -16,7 +16,8 @@ System.register(["lodash", "../../beans/aggregators/parameters/sampling_aggregat
         ],
         execute: function () {
             SamplingParameterConverter = (function () {
-                function SamplingParameterConverter(samplingConverter) {
+                function SamplingParameterConverter(templatingUtils, samplingConverter) {
+                    this.templatingUtils = templatingUtils;
                     this.samplingConverter = samplingConverter;
                 }
                 SamplingParameterConverter.prototype.convertSamplingParameters = function (aggregator) {
@@ -26,6 +27,15 @@ System.register(["lodash", "../../beans/aggregators/parameters/sampling_aggregat
                     if (samplingParameterIndex > -1 && samplingUnitParameterIndex > -1) {
                         var samplingParameter = parameters[samplingParameterIndex];
                         var samplingUnitParameter = parameters[samplingUnitParameterIndex];
+                        var interpretedSamplingParameter = this.templatingUtils.replace(samplingParameter.value);
+                        if (interpretedSamplingParameter.length === 1) {
+                            samplingParameter.value = interpretedSamplingParameter[0];
+                        }
+                        else {
+                            throw new Error("Multi-value variables not supported in aggregator parameters; name=" + samplingParameter.name +
+                                ", value=" + samplingParameter.value +
+                                ", interpretedValues=" + interpretedSamplingParameter);
+                        }
                         if (this.samplingConverter.isApplicable(samplingParameter.value)) {
                             var convertedSampling = this.samplingConverter.convert(samplingParameter.value, samplingUnitParameter.value);
                             samplingParameter.value = convertedSampling.interval;

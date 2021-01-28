@@ -109,7 +109,14 @@ System.register(["lodash", "../beans/function", "../beans/request/legacy_target_
                         });
                     }));
                     var requestBuilder = this.getRequestBuilder(options.scopedVars);
-                    return this.executeRequest(requestBuilder.buildDatapointsQuery(unpackedTargets, options))
+                    var datapointsQuery = null;
+                    try {
+                        datapointsQuery = requestBuilder.buildDatapointsQuery(unpackedTargets, options);
+                    }
+                    catch (e) {
+                        return Promise.reject({ message: e.message });
+                    }
+                    return this.executeRequest(datapointsQuery)
                         .then(function (response) { return _this.responseHandler.convertToDatapoints(response.data, aliases); });
                 };
                 KairosDBDatasource.prototype.getMetricTags = function (metricNameTemplate, filters) {

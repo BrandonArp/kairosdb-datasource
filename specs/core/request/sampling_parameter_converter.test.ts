@@ -4,17 +4,25 @@ import {SamplingAggregatorParameter} from "../../../src/beans/aggregators/parame
 import {SamplingUnitAggregatorParameter} from "../../../src/beans/aggregators/parameters/sampling_unit_aggregator_parameter";
 import {TimeUnit} from "../../../src/beans/aggregators/utils";
 import {SamplingParameterConverter} from "../../../src/core/request/sampling_parameter_converter";
+import {TemplatingUtils} from "../../../src/utils/templating_utils";
 import {TimeUnitUtils} from "../../../src/utils/time_unit_utils";
-import {buildSamplingConverterMock} from "../../mocks";
+import {buildSamplingConverterMock, buildTemplatingSrvMock} from "../../mocks";
 
 describe("SamplingParameterConverter", () => {
     const millisecondsString = TimeUnitUtils.getString(TimeUnit.MILLISECONDS);
     const convertedValue = "42000000";
+    const variables = {
+        tagname1: ["v1"],
+        tagname2: ["v2", "v3"]
+    };
+    const templatingSrvMock = buildTemplatingSrvMock(variables);
+    const templatingUtils: TemplatingUtils =
+        new TemplatingUtils(templatingSrvMock, {});
 
     it("should update both sampling parameters", () => {
         // given
         const samplingConverterMock = buildSamplingConverterMock(convertedValue, millisecondsString, true);
-        const samplingParameterConverter = new SamplingParameterConverter(samplingConverterMock);
+        const samplingParameterConverter = new SamplingParameterConverter(templatingUtils, samplingConverterMock);
         const aggregator = new Aggregator("foo");
         const samplingUnitAggregatorParameter = new SamplingUnitAggregatorParameter();
         samplingUnitAggregatorParameter.value = TimeUnitUtils.getString(TimeUnit.HOURS);
@@ -35,7 +43,7 @@ describe("SamplingParameterConverter", () => {
     it("should not convert parameter-less aggregator", () => {
         // given
         const samplingConverterMock = buildSamplingConverterMock(convertedValue, millisecondsString, true);
-        const samplingParameterConverter = new SamplingParameterConverter(samplingConverterMock);
+        const samplingParameterConverter = new SamplingParameterConverter(templatingUtils, samplingConverterMock);
         const aggregator = new Aggregator("foo");
         // when
         const convertedAggregator = samplingParameterConverter.convertSamplingParameters(aggregator);
@@ -48,7 +56,7 @@ describe("SamplingParameterConverter", () => {
     it("should pass not applicable parameters", () => {
         // given
         const samplingConverterMock = buildSamplingConverterMock(convertedValue, millisecondsString, true);
-        const samplingParameterConverter = new SamplingParameterConverter(samplingConverterMock);
+        const samplingParameterConverter = new SamplingParameterConverter(templatingUtils, samplingConverterMock);
         const aggregator = new Aggregator("foo");
         const parameter = new AnyAggregatorParameter("bar", "bar", "1");
         aggregator.parameters = [parameter];
@@ -63,7 +71,7 @@ describe("SamplingParameterConverter", () => {
     it("should pass when only unit parameter is present", () => {
         // given
         const samplingConverterMock = buildSamplingConverterMock(convertedValue, millisecondsString, true);
-        const samplingParameterConverter = new SamplingParameterConverter(samplingConverterMock);
+        const samplingParameterConverter = new SamplingParameterConverter(templatingUtils, samplingConverterMock);
         const aggregator = new Aggregator("foo");
         const parameter = new SamplingUnitAggregatorParameter();
         aggregator.parameters = [parameter];

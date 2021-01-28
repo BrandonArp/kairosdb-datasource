@@ -28,7 +28,7 @@ export class KairosDBQueryBuilder {
         this.templatingUtils = new TemplatingUtils(templateSrv, this.scopedVars);
         const samplingConverter = new SamplingConverter();
         this.groupBysBuilder = new GroupBysBuilder(this.templatingUtils, samplingConverter);
-        this.samplingParameterConverter = new SamplingParameterConverter(samplingConverter);
+        this.samplingParameterConverter = new SamplingParameterConverter(this.templatingUtils, samplingConverter);
         this.snapToIntervals = snapToIntervals;
     }
 
@@ -95,7 +95,7 @@ export class KairosDBQueryBuilder {
 
     private convertParameters(aggregatorDefinition: Aggregator, defaultInterval: string) {
         const parameterObjectBuilder =
-            new ParameterObjectBuilder(defaultInterval, aggregatorDefinition.autoValueSwitch, this.snapToIntervals);
+            new ParameterObjectBuilder(this.templatingUtils, defaultInterval, aggregatorDefinition.autoValueSwitch, this.snapToIntervals);
         return aggregatorDefinition.parameters.map((parameter) => parameterObjectBuilder.build(parameter))
             .reduce((param1, param2) => _.merge(param1, param2), {});
     }

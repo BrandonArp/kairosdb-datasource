@@ -6,6 +6,8 @@ import {SamplingUnitAggregatorParameter} from "../../../src/beans/aggregators/pa
 import {TimeUnit, UnitValue} from "../../../src/beans/aggregators/utils";
 import {ParameterObjectBuilder} from "../../../src/core/request/parameter_object_builder";
 import {AutoValueSwitch} from "../../../src/directives/auto_value_switch";
+import {TemplatingUtils} from "../../../src/utils/templating_utils";
+import {buildTemplatingSrvMock} from "../../mocks";
 
 describe("ParameterObjectBuilder", () => {
     const INTERVAL_VALUE = "42";
@@ -17,11 +19,18 @@ describe("ParameterObjectBuilder", () => {
         [TimeUnit.HOURS, 1],
         [TimeUnit.DAYS, 1]
     ];
+    const variables = {
+        tagname1: ["v1"],
+        tagname2: ["v2", "v3"]
+    };
+    const templatingSrvMock = buildTemplatingSrvMock(variables);
+    const templatingUtils: TemplatingUtils =
+        new TemplatingUtils(templatingSrvMock, {});
 
     it("should throw on unknown alignment type", () => {
         expect(() => {
             // given
-            const parameterObjectBuilder: ParameterObjectBuilder = new ParameterObjectBuilder(INTERVAL, null);
+            const parameterObjectBuilder: ParameterObjectBuilder = new ParameterObjectBuilder(templatingUtils, INTERVAL, null);
             const alignmentType = "UnKnOwN";
             const alignmentParameter: AggregatorParameter = new AlignmentAggregatorParameter();
             alignmentParameter.value = alignmentType;
@@ -32,7 +41,7 @@ describe("ParameterObjectBuilder", () => {
 
     it("should build default parameter given unknown parameter type", () => {
         // given
-        const parameterObjectBuilder: ParameterObjectBuilder = new ParameterObjectBuilder(INTERVAL, null);
+        const parameterObjectBuilder: ParameterObjectBuilder = new ParameterObjectBuilder(templatingUtils, INTERVAL, null);
         const parameter = new AnyAggregatorParameter("parameterOfUnknownType");
         parameter.type = "UnKnOwN";
         parameter.name = "unknownParameterName";
@@ -50,7 +59,7 @@ describe("ParameterObjectBuilder", () => {
         const autoValueSwitch = new AutoValueSwitch([parameter]);
         autoValueSwitch.enabled = true;
         const parameterObjectBuilder: ParameterObjectBuilder =
-            new ParameterObjectBuilder(INTERVAL, autoValueSwitch);
+            new ParameterObjectBuilder(templatingUtils, INTERVAL, autoValueSwitch);
         // when
         const parameterObject = parameterObjectBuilder.build(parameter);
         // then
@@ -62,7 +71,7 @@ describe("ParameterObjectBuilder", () => {
         const samplingUnitParameter = new SamplingUnitAggregatorParameter();
         const autoValueSwitch = new AutoValueSwitch([samplingParameter, samplingUnitParameter]);
         autoValueSwitch.enabled = true;
-        const parameterObjectBuilder = new ParameterObjectBuilder("120s", autoValueSwitch, snapToIntervals);
+        const parameterObjectBuilder = new ParameterObjectBuilder(templatingUtils, "120s", autoValueSwitch, snapToIntervals);
         const samplingParameterObject = parameterObjectBuilder.build(samplingParameter);
         const samplingUnitParameterObject = parameterObjectBuilder.build(samplingUnitParameter);
 
