@@ -3,12 +3,15 @@ import {Aggregator} from "../../beans/aggregators/aggregator";
 import {AggregatorParameter} from "../../beans/aggregators/parameters/aggregator_parameter";
 import {SamplingAggregatorParameter} from "../../beans/aggregators/parameters/sampling_aggregator_parameter";
 import {SamplingUnitAggregatorParameter} from "../../beans/aggregators/parameters/sampling_unit_aggregator_parameter";
+import {TemplatingUtils} from "../../utils/templating_utils";
 import {SamplingConverter} from "./sampling_converter";
 
 export class SamplingParameterConverter {
     private samplingConverter: SamplingConverter;
+    private templatingUtils: TemplatingUtils;
 
-    constructor(samplingConverter: SamplingConverter) {
+    constructor(templatingUtils: TemplatingUtils, samplingConverter: SamplingConverter) {
+        this.templatingUtils = templatingUtils;
         this.samplingConverter = samplingConverter;
     }
 
@@ -20,6 +23,17 @@ export class SamplingParameterConverter {
         if (samplingParameterIndex > -1 && samplingUnitParameterIndex > -1) {
             const samplingParameter = parameters[samplingParameterIndex];
             const samplingUnitParameter = parameters[samplingUnitParameterIndex];
+
+            const interpretedSamplingParameter = this.templatingUtils.replace(samplingParameter.value);
+            if (interpretedSamplingParameter.length === 1) {
+                samplingParameter.value = interpretedSamplingParameter[0];
+            } else {
+                throw new Error(
+                    "Multi-value variables not supported in aggregator parameters; name=" + samplingParameter.name +
+                    ", value=" + samplingParameter.value +
+                    ", interpretedValues=" + interpretedSamplingParameter);
+            }
+
             if (this.samplingConverter.isApplicable(samplingParameter.value)) {
                 const convertedSampling =
                     this.samplingConverter.convert(samplingParameter.value, samplingUnitParameter.value);

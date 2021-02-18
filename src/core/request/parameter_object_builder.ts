@@ -3,15 +3,18 @@ import _ from "lodash";
 import {AggregatorParameter} from "../../beans/aggregators/parameters/aggregator_parameter";
 import {TimeUnit, UnitValue} from "../../beans/aggregators/utils";
 import {AutoValueSwitch} from "../../directives/auto_value_switch";
+import {TemplatingUtils} from "../../utils/templating_utils";
 import {TimeUnitUtils} from "../../utils/time_unit_utils";
 
 export class ParameterObjectBuilder {
+    private templatingUtils: TemplatingUtils;
     private autoValueEnabled: boolean;
     private autoValueDependentParameters: string[] = [];
     private autoIntervalValue: string;
     private autoIntervalUnit: string;
 
-    constructor(interval: string, autoValueSwitch: AutoValueSwitch, snapToIntervals?: UnitValue[]) {
+    constructor(templatingUtils: TemplatingUtils, interval: string, autoValueSwitch: AutoValueSwitch, snapToIntervals?: UnitValue[]) {
+        this.templatingUtils = templatingUtils;
         this.autoValueEnabled = !_.isNil(autoValueSwitch) && autoValueSwitch.enabled;
         if (this.autoValueEnabled) {
             this.autoValueDependentParameters = autoValueSwitch.dependentParameters
@@ -70,7 +73,15 @@ export class ParameterObjectBuilder {
 
     private buildDefault(parameter: AggregatorParameter) {
         const parameterObject = {};
-        parameterObject[parameter.name] = parameter.value;
+        const interpretedValues = this.templatingUtils.replace(parameter.value);
+        if (interpretedValues.length === 1) {
+            parameterObject[parameter.name] = interpretedValues[0];
+        } else {
+            throw new Error(
+                "Multi-value variables not supported in aggregator parameters; name=" + parameter.name +
+                ", value=" + parameter.value +
+                ", interpretedValues=" + interpretedValues);
+        }
         return parameterObject;
     }
 

@@ -97,7 +97,13 @@ export class KairosDBDatasource {
                 });
         }));
         const requestBuilder = this.getRequestBuilder(options.scopedVars);
-        return this.executeRequest(requestBuilder.buildDatapointsQuery(unpackedTargets, options))
+        let datapointsQuery = null;
+        try {
+            datapointsQuery = requestBuilder.buildDatapointsQuery(unpackedTargets, options);
+        } catch (e) {
+            return Promise.reject({message: e.message});
+        }
+        return this.executeRequest(datapointsQuery)
             .then((response) => this.responseHandler.convertToDatapoints(response.data, aliases));
     }
 

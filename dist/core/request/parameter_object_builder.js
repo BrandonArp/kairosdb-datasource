@@ -16,9 +16,10 @@ System.register(["lodash", "../../beans/aggregators/utils", "../../utils/time_un
         ],
         execute: function () {
             ParameterObjectBuilder = (function () {
-                function ParameterObjectBuilder(interval, autoValueSwitch, snapToIntervals) {
+                function ParameterObjectBuilder(templatingUtils, interval, autoValueSwitch, snapToIntervals) {
                     var _a;
                     this.autoValueDependentParameters = [];
+                    this.templatingUtils = templatingUtils;
                     this.autoValueEnabled = !lodash_1.default.isNil(autoValueSwitch) && autoValueSwitch.enabled;
                     if (this.autoValueEnabled) {
                         this.autoValueDependentParameters = autoValueSwitch.dependentParameters
@@ -74,7 +75,15 @@ System.register(["lodash", "../../beans/aggregators/utils", "../../utils/time_un
                 };
                 ParameterObjectBuilder.prototype.buildDefault = function (parameter) {
                     var parameterObject = {};
-                    parameterObject[parameter.name] = parameter.value;
+                    var interpretedValues = this.templatingUtils.replace(parameter.value);
+                    if (interpretedValues.length === 1) {
+                        parameterObject[parameter.name] = interpretedValues[0];
+                    }
+                    else {
+                        throw new Error("Multi-value variables not supported in aggregator parameters; name=" + parameter.name +
+                            ", value=" + parameter.value +
+                            ", interpretedValues=" + interpretedValues);
+                    }
                     return parameterObject;
                 };
                 ParameterObjectBuilder.prototype.isOverriddenByAutoValue = function (parameter) {

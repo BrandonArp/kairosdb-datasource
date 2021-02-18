@@ -42,7 +42,7 @@ System.register(["lodash", "../../beans/request/datapoints_query", "../../beans/
                     this.templatingUtils = new templating_utils_1.TemplatingUtils(templateSrv, this.scopedVars);
                     var samplingConverter = new sampling_converter_1.SamplingConverter();
                     this.groupBysBuilder = new group_bys_builder_1.GroupBysBuilder(this.templatingUtils, samplingConverter);
-                    this.samplingParameterConverter = new sampling_parameter_converter_1.SamplingParameterConverter(samplingConverter);
+                    this.samplingParameterConverter = new sampling_parameter_converter_1.SamplingParameterConverter(this.templatingUtils, samplingConverter);
                     this.snapToIntervals = snapToIntervals;
                 }
                 KairosDBQueryBuilder.prototype.buildHealthStatusQuery = function () {
@@ -92,7 +92,7 @@ System.register(["lodash", "../../beans/request/datapoints_query", "../../beans/
                     return lodash_1.default.extend({ name: convertedAggregator.name }, this.convertParameters(convertedAggregator, defaultInterval));
                 };
                 KairosDBQueryBuilder.prototype.convertParameters = function (aggregatorDefinition, defaultInterval) {
-                    var parameterObjectBuilder = new parameter_object_builder_1.ParameterObjectBuilder(defaultInterval, aggregatorDefinition.autoValueSwitch, this.snapToIntervals);
+                    var parameterObjectBuilder = new parameter_object_builder_1.ParameterObjectBuilder(this.templatingUtils, defaultInterval, aggregatorDefinition.autoValueSwitch, this.snapToIntervals);
                     return aggregatorDefinition.parameters.map(function (parameter) { return parameterObjectBuilder.build(parameter); })
                         .reduce(function (param1, param2) { return lodash_1.default.merge(param1, param2); }, {});
                 };
