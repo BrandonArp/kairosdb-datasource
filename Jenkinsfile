@@ -25,7 +25,6 @@ pipeline {
         withCredentials([usernamePassword(credentialsId: 'jenkins-dockerhub', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD'),
             usernamePassword(credentialsId: 'jenkins-ossrh', usernameVariable: 'OSSRH_USER', passwordVariable: 'OSSRH_PASS'),
             string(credentialsId: 'jenkins-gpg', variable: 'GPG_PASS')]) {
-          sh 'npm install grunt-cli'
           sh 'npm install'
           sh 'grunt'
           sh 'cp -R dist kairosdb-datasource'
