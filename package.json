@@ -20,7 +20,7 @@
     "brace": "^0.10.0",
     "chai": "^4.1.2",
     "es6-shim": "^0.35.3",
-    "grafana-sdk-mocks": "github:briangann/grafana-sdk-mocks",
+    "grafana-sdk-mocks": "git+https://github.com/briangann/grafana-sdk-mocks",
     "grunt": "^1.0.1",
     "grunt-babel": "~6.0.0",
     "grunt-contrib-clean": "^1.1.0",
@@ -60,7 +60,6 @@
   },
   "dependencies": {
     "angular": "^1.6.6",
-    "grafana-sdk-mocks": "github:briangann/grafana-sdk-mocks",
     "moment": "^2.22.2"
   },
   "homepage": "https://github.com/grafana/kairosdb-datasource"
